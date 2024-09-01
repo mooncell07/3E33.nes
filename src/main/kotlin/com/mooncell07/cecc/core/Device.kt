@@ -27,4 +27,6 @@ open class Device : AbstractDevice() {
     }
 
     override fun read(address: UShort): UByte = area[(address - base.toUShort()).toInt()]
+
+    fun dump(): List<UByte> = area.slice(base..(base + size))
 }
