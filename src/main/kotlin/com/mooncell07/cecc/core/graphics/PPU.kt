@@ -4,23 +4,28 @@ import com.mooncell07.cecc.core.PPURegisters
 import com.mooncell07.cecc.core.PPUState
 
 class PPU(
+    private val gbus: GBUS,
     private val regs: PPURegisters,
 ) {
-    private var dots = 0
     private var scanline = 0
     private var state: PPUState = PPUState.PRERENDER
-    private val fetcher: Fetcher = Fetcher()
+    private val fetcher: Fetcher = Fetcher(regs)
 
     fun tick() {
-        dots++
-        if (dots == 341) {
+        fetcher.dots++
+        if (fetcher.dots == 341) {
             scanline++
-            dots = 0
+            fetcher.dots = 0
         }
 
         when (state) {
             PPUState.RENDER -> {
-                if (scanline == 240) state = PPUState.POSTRENDER
+                if (scanline == 240) {
+                    state = PPUState.POSTRENDER
+                    return
+                }
+
+                fetcher.tick()
             }
             PPUState.POSTRENDER -> {
                 if (scanline == 241) state = PPUState.VBLANK
