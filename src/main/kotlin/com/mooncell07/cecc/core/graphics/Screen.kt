@@ -7,13 +7,13 @@ import javafx.scene.image.WritableImage
 import javafx.scene.paint.Color
 
 class Screen(
+    private val width: Int = 256,
+    height: Int = 240,
     scale: Double = 2.0,
 ) {
-    private val WIDTH = 256
-    private val HEIGHT = 240
-    val canvas: Canvas = Canvas(WIDTH * scale, HEIGHT * scale)
+    val canvas: Canvas = Canvas(width * scale, height * scale)
     private val graphicsContext: GraphicsContext = canvas.graphicsContext2D
-    private val buffer: WritableImage = WritableImage(WIDTH, HEIGHT)
+    private val buffer: WritableImage = WritableImage(width, height)
     private val pixelWriter: PixelWriter = buffer.pixelWriter
     private var bufferIndex = 0
 
@@ -22,7 +22,7 @@ class Screen(
     }
 
     fun drawPixel(color: Color) {
-        pixelWriter.setColor(bufferIndex % WIDTH, bufferIndex / WIDTH, color)
+        pixelWriter.setColor(bufferIndex % width, bufferIndex / width, color)
         bufferIndex += 1
     }
 

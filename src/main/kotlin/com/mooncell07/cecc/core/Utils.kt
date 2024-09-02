@@ -29,3 +29,5 @@ fun handleBit(
     pos: Int,
     flagv: Boolean,
 ) = if (flagv) setBit(v, pos) else clearBit(v, pos)
+
+fun Boolean.toInt(): Int = if (this) 1 else 0
