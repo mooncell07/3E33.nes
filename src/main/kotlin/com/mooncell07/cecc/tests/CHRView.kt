@@ -24,7 +24,7 @@ class CHRView : Application() {
     ): IntArray {
         val pixelRow = IntArray(8) { 0 }
         for ((i, x) in (7 downTo 0).withIndex()) {
-            pixelRow[i] = (testBit(lo.toInt(), x).toInt() shl 1) or testBit(hi.toInt(), x).toInt()
+            pixelRow[i] = (testBit(hi.toInt(), x).toInt() shl 1) or testBit(lo.toInt(), x).toInt()
         }
         return pixelRow
     }
@@ -36,7 +36,7 @@ class CHRView : Application() {
                 for (col in colStart..(colStart + 15)) {
                     val addr = chrrom.base + (16 * col) + row
                     val loPlane = chrrom.area[addr]
-                    val hiPlane = chrrom.area[addr + 1]
+                    val hiPlane = chrrom.area[addr + 8]
                     val pixelRow = genPixelRow(loPlane, hiPlane)
                     println(
                         """
@@ -45,7 +45,7 @@ class CHRView : Application() {
                             |TILE COLUMN: $col, 
                             |TILE ROW: $row, 
                             |LO: (${addr.toHexString()}, ${loPlane.toHexString()}), 
-                            |HI: (${addr.toHexString() + 1}, ${hiPlane.toHexString()}), 
+                            |HI: (${(addr + 8).toHexString()}, ${hiPlane.toHexString()}), 
                             |PIXEL ROW: 
                             |${pixelRow.map{ it.toString(2) }} 
                         """.trimMargin().replace("\n", ""),

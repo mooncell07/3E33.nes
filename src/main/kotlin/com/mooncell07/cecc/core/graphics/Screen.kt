@@ -18,6 +18,7 @@ class Screen(
     private var bufferIndex = 0
 
     init {
+        graphicsContext.isImageSmoothing = false
         graphicsContext.scale(scale, scale)
     }
 
