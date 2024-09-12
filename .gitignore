@@ -39,5 +39,5 @@ bin/
 .DS_Store
 
 roms/
-json-tests/
+nes6502/
 Test.kt
