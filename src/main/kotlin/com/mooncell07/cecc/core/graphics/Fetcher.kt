@@ -11,7 +11,7 @@ class Fetcher(
     private var throttle = 2
     private var shiftRegister = MutableList(0xF) { 0 }
 
-    var dots = 0
+    var dots = 21
 
     fun tick() {
         if (throttle != 0) {

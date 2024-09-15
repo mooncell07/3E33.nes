@@ -3,9 +3,14 @@ package com.mooncell07.cecc.core
 class CPU(
     private val bus: Bus,
 ) : Register() {
-    var instr: INSTR = INSTAB[0xEA]
+    var opcode: Int = 0xEA
+    var instr: INSTR = INSTAB[opcode]
     private var lastAddr: UShort = 0x0000u
     private var pageCheck: Boolean = false
+
+    init {
+        PC = bus.readWord(0xFFFCu)
+    }
 
     // Fetchers
     // ------------------------------------------------------------------------------------
@@ -30,6 +35,18 @@ class CPU(
                 -1, 255 -> bus.dummyRead((effective + 0x100u).toUShort())
             }
         }
+    }
+
+    private fun INT(vec: UShort) {
+        bus.dummyRead(PC)
+
+        val v = (PC + 1u).toUShort()
+        push(MSB(v))
+        push(LSB(v))
+        push(setBit(this[RT.SR].toInt(), FT.B.ordinal - 1).toUByte())
+        setPC(bus.readWord(vec))
+
+        this[FT.I] = true
     }
 
     // ------------------------------------------------------------------------------------
@@ -383,17 +400,9 @@ class CPU(
         this[FT.V] = testBit(m.toInt(), 6)
     }
 
-    private fun opBRK() {
-        bus.dummyRead(PC)
+    private fun opBRK() = INT(0xFFFEu)
 
-        val v = (PC + 1u).toUShort()
-        push(MSB(v))
-        push(LSB(v))
-        push(setBit(this[RT.SR].toInt(), FT.B.ordinal - 1).toUByte())
-        setPC(bus.readWord(0xFFFEu))
-
-        this[FT.I] = true
-    }
+    fun NMI() = INT(0xFFFAu)
 
     private fun opRTI() {
         bus.dummyRead(PC)
@@ -423,7 +432,8 @@ class CPU(
     // ------------------------------------------------------------------------------------
 
     fun tick() {
-        instr = INSTAB[fetch().toInt()]
+        opcode = fetch().toInt()
+        instr = INSTAB[opcode]
         assert(instr.insType != IT.NONE) { "${instr.insType} is an illegal instruction type." }
         executors[instr.insType]?.invoke()
     }
