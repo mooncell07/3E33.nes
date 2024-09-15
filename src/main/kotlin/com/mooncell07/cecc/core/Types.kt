@@ -9,7 +9,7 @@ enum class FlagType { NONE, C, Z, I, D, B, UNUSED2_IGN, V, N }
 enum class DeviceType {
     EMPTY, DEBUG, BUS, CARTRIDGE,
     ZEROPAGE, STACK, RAMEx, CHRROM,
-    GBUS, PPUREGISTERS, VRAM
+    GBUS, PPUREGISTERS, VRAM, APUREGISTERS
 }
 
 enum class FetcherState {

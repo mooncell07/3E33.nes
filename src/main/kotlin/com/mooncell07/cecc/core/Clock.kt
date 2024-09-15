@@ -5,7 +5,7 @@ import com.mooncell07.cecc.core.graphics.PPU
 class Clock(
     private val ppu: PPU? = null,
 ) {
-    var cycles: Int = 0
+    var cycles: Int = 6
 
     fun tick() {
         cycles++
