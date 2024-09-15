@@ -1,27 +1,9 @@
 package com.mooncell07.cecc.core.graphics
 
 import com.mooncell07.cecc.core.AbstractDevice
-import com.mooncell07.cecc.core.Cartridge
+import com.mooncell07.cecc.core.CHRROM
 import com.mooncell07.cecc.core.DT
-import com.mooncell07.cecc.core.Device
-
-class CHRROM(
-    cart: Cartridge,
-) : Device() {
-    override val type = DT.CHRROM
-    override val size = 0x1FFF
-    override val base = 0x4010
-    override val area: UByteArray = cart.area
-}
-
-class VRAM(
-    cart: Cartridge,
-) : Device() {
-    override val type = DT.VRAM
-    override val size = 0x0FFF
-    override val base = 0x600F
-    override val area: UByteArray = cart.area
-}
+import com.mooncell07.cecc.core.VRAM
 
 class GBUS(
     private val chrrom: CHRROM,

@@ -15,9 +15,10 @@ class PPURegisters : AbstractDevice() {
     var PPUDATA: UByte = 0x00u
 
     // Internal Registers
-    //PPUSTATUS[7] = nmi occured
+    // PPUSTATUS[7] = nmi occured
     var nmiOccured: Boolean = false
-    //PPUCTRL[7] = nmi output
+
+    // PPUCTRL[7] = nmi output
     var nmiOutput: Boolean = false
 
     override fun read(address: UShort): UByte =
@@ -56,10 +57,10 @@ class PPURegisters : AbstractDevice() {
     }
 }
 
-class APURegisters: Device() {
+class APURegisters : Device() {
     override val type = DT.APUREGISTERS
     override val size = 0x0017
     override val base = 0x4000
 
-    override val area = UByteArray(size + 1){ 0u }
+    override val area = UByteArray(size + 1) { 0u }
 }

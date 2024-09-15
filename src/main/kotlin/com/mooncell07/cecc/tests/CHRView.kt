@@ -1,7 +1,7 @@
 package com.mooncell07.cecc.tests
 
+import com.mooncell07.cecc.core.CHRROM
 import com.mooncell07.cecc.core.Cartridge
-import com.mooncell07.cecc.core.graphics.CHRROM
 import com.mooncell07.cecc.core.graphics.Screen
 import com.mooncell07.cecc.core.testBit
 import com.mooncell07.cecc.core.toInt
