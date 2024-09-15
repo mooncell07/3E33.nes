@@ -20,3 +20,20 @@ class RAMEx : Device() {
     override val base = 0x0200
     override val area: UByteArray = UByteArray(size + 1) { 0u }
 }
+
+class CHRROM(
+    cart: Cartridge,
+) : Device() {
+    override val type = DT.CHRROM
+    override val size = 0x1FFF
+    override val base = 0x0000
+    private val abs = 0x4010
+    override val area: UByteArray = cart.area.slice(abs..(abs + size)).toUByteArray()
+}
+
+class VRAM : Device() {
+    override val type = DT.VRAM
+    override val size = 0x0FFF
+    override val base = 0x2000
+    override val area: UByteArray = UByteArray(size + 1) { 0u }
+}

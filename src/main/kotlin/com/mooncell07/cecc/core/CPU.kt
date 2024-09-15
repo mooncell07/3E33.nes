@@ -28,12 +28,12 @@ class CPU(
         base: UShort,
         effective: UShort,
     ) {
-        pageCheck = MSB(base) != MSB(effective)
+        val msbBase = MSB(base).toInt()
+        val msbEffective = MSB(effective).toInt()
+        pageCheck = msbBase != msbEffective
         if (pageCheck) {
-            when (MSB(effective).toInt() - MSB(base).toInt()) {
-                1, -255 -> bus.dummyRead((effective - 0x100u).toUShort())
-                -1, 255 -> bus.dummyRead((effective + 0x100u).toUShort())
-            }
+            val addr = effective + (if (((msbEffective - msbBase) and 0xFF) == 0xFF) 0x100 else -0x100).toUShort()
+            bus.dummyRead(addr.toUShort())
         }
     }
 
