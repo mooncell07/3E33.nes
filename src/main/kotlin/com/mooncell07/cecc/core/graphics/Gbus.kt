@@ -29,9 +29,9 @@ class GBUS(
         address: UShort,
         data: UByte,
     ) {
-        if (address <= chrrom.size.toUShort()) {
+        if (address <= (chrrom.size + chrrom.base).toUShort()) {
             chrrom.write(address, data)
-        } else if (address <= vram.size.toUShort()) {
+        } else if (address <= (vram.size + vram.base).toUShort()) {
             vram.write(address, data)
         }
     }
