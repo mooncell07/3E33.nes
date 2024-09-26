@@ -38,9 +38,14 @@ class CPU(
     }
 
     private fun INT(vec: UShort) {
+        var v = (PC + 1u).toUShort()
+
+        if (vec == 0xFFFA.toUShort()) {
+            bus.dummyRead(PC)
+            v--
+        }
         bus.dummyRead(PC)
 
-        val v = (PC + 1u).toUShort()
         push(MSB(v))
         push(LSB(v))
         push(setBit(this[RT.SR].toInt(), FT.B.ordinal - 1).toUByte())

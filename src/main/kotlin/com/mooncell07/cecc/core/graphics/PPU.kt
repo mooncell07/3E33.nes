@@ -14,7 +14,7 @@ class PPU(
     var scanline = 262
     var state: PPUState = PPUState.PRERENDER
     val fetcher: Fetcher = Fetcher(regs)
-    var frame = 0
+    var frame = 1
 
     fun tick() {
         fetcher.dots++

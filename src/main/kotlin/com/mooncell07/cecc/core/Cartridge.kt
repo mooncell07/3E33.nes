@@ -15,5 +15,7 @@ class Cartridge(
     override fun write(
         address: UShort,
         data: UByte,
-    ) = println("WRITE ROM IS NOT SUPPORTED.")
+    ) {
+        area[(address - base.toUShort() + 0x10u).toInt()] = data
+    }
 }

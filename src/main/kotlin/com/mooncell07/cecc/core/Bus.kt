@@ -24,6 +24,13 @@ class Bus(
         address: UShort,
         data: UByte,
     ) {
+        if (address == 0x4014.toUShort()) {
+            println("Skipping DMA")
+            for (i in 0..514) {
+                clock.tick()
+            }
+            return
+        }
         clock.tick()
         deviceMap.find { address.toInt() <= (it.base + it.size) }!!.write(address, data)
     }
