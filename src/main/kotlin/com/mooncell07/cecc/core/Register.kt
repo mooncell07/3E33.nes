@@ -4,7 +4,7 @@ open class Register {
     var PC: UShort = 0x0000u
 
     // First value is unused.
-    private val regs: Array<UByte> = arrayOf(0x00u, 0x00u, 0x00u, 0x00u, 0xFDu, 0x24u)
+    private val regs: Array<UByte> = arrayOf(0x00u, 0x02u, 0xFFu, 0x02u, 0xFAu, 0x05u)
 
     operator fun get(regType: RT): UByte {
         assert(regType != RT.NONE) { "$regType type register is not supported for REGGET." }
