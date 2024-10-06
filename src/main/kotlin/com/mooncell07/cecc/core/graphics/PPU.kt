@@ -1,47 +1,71 @@
 package com.mooncell07.cecc.core.graphics
 
-import com.mooncell07.cecc.core.PPURegisters
-import com.mooncell07.cecc.core.PPUState
-import com.mooncell07.cecc.core.VRAM
-import com.mooncell07.cecc.core.clearBit
-import com.mooncell07.cecc.core.setBit
+import com.mooncell07.cecc.core.*
 
 class PPU(
-    private val gbus: GBUS,
+    private val screen: Screen,
     private val regs: PPURegisters,
-    private val vram: VRAM,
+    vram: VRAM,
+    chrrom: CHRROM,
 ) {
-    var scanline = 262
-    var state: PPUState = PPUState.PRERENDER
-    val fetcher: Fetcher = Fetcher(regs)
-    var frame = 1
+    private var state: PPUState = PPUState.PRERENDER
+    private var frame = 1
+    val fetcher: Fetcher = Fetcher(regs, vram, chrrom)
 
     fun tick() {
         fetcher.dots++
         if (fetcher.dots == 341) {
-            scanline++
             fetcher.dots = 0
+            fetcher.scanline++
         }
 
         when (state) {
             PPUState.RENDER -> {
-                fetcher.tick()
-                if (scanline == 240) {
+                if (testBit(regs.PPUMASK.toInt(), 3)) {
+                    fetcher.tick()
+                    if (fetcher.dots == 255) {
+                        if (regs.v.toInt() and 0x7000 != 0x7000) {
+                            regs.v = (regs.v + 0x1000u).toUShort()
+                        } else {
+                            regs.v = regs.v and 0x8FFFu
+                            var y = (regs.v and 0x03E0u).toInt() shr 5
+                            when (y) {
+                                29 -> {
+                                    y = 0
+                                    regs.v = regs.v xor 0x0800u
+                                }
+                                31 -> y = 0
+                                else -> y++
+                            }
+                            regs.v = (regs.v and 0xFC1Fu) or (y shl 5).toUShort()
+                        }
+                    }
+                    if (fetcher.dots == 256) {
+                        regs.v = (regs.v and 0xFBE0u) or (regs.t and 0x041Fu)
+                    }
+
+                    if ((fetcher.shiftRegister.size > 0) and (fetcher.dots < 256)) {
+                        screen.drawPixel(fetcher.shiftRegister.removeFirst())
+                    }
+                }
+
+                if (fetcher.scanline == 240) {
                     frame++
                     state = PPUState.POSTRENDER
                 }
             }
             PPUState.POSTRENDER -> {
-                if (scanline == 241) {
+                if (fetcher.scanline == 241) {
+                    screen.render()
                     state = PPUState.VBLANK
                 }
             }
             PPUState.VBLANK -> {
-                if ((scanline == 241) and (fetcher.dots == 1)) {
+                if ((fetcher.scanline == 241) and (fetcher.dots == 1)) {
                     regs.nmiOccured = true
                     regs.PPUSTATUS = setBit(regs.PPUSTATUS.toInt(), 7).toUByte()
                 }
-                if (scanline == 261) {
+                if (fetcher.scanline == 261) {
                     state = PPUState.PRERENDER
                 }
             }
@@ -51,9 +75,14 @@ class PPU(
                     regs.PPUSTATUS = clearBit(regs.PPUSTATUS.toInt(), 7).toUByte()
                 }
 
-                if (scanline == 262) {
+                if (fetcher.scanline == 262) {
                     state = PPUState.RENDER
-                    scanline = 0
+                    fetcher.scanline = 0
+                    return
+                }
+
+                if (testBit(regs.PPUMASK.toInt(), 3)) {
+                    fetcher.tick()
                 }
             }
         }
