@@ -9,7 +9,6 @@ class PPU(
     chrrom: CHRROM,
 ) {
     private var state: PPUState = PPUState.PRERENDER
-    private var frame = 1
     val fetcher: Fetcher = Fetcher(regs, vram, chrrom)
 
     fun tick() {
@@ -50,7 +49,7 @@ class PPU(
                 }
 
                 if (fetcher.scanline == 240) {
-                    frame++
+                    fetcher.frame++
                     state = PPUState.POSTRENDER
                 }
             }

@@ -25,7 +25,6 @@ class Bus(
         data: UByte,
     ) {
         if (address == 0x4014.toUShort()) {
-            println("Skipping DMA")
             for (i in 0..514) {
                 clock.tick()
             }
