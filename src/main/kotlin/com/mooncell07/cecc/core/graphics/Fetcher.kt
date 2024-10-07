@@ -9,7 +9,7 @@ class Fetcher(
     private val chrrom: CHRROM,
 ) {
     val NTBASE = ushortArrayOf(0x2000u, 0x2400u, 0x2800u, 0x2C00u)
-    private val COLORS = arrayOf(Color.BLACK, Color.DARKGRAY, Color.LIGHTGRAY, Color.WHITE)
+    val COLORS = arrayOf(Color.BLACK, Color.DARKGRAY, Color.LIGHTGRAY, Color.WHITE)
 
     private var state = 0
     private var nt: UByte = 0x00u
@@ -19,6 +19,7 @@ class Fetcher(
     var shiftRegister = mutableListOf<Color>()
     var scanline = 261
     var dots = 320
+    var frame = 1
 
     private fun genPixelRow(
         lo: UByte,
@@ -55,15 +56,21 @@ class Fetcher(
             }
 
             4 -> {
-                baseAddr = (((nt.toInt()) shl 4) or (ppuReg.v.toInt() shr 12)).toUShort()
-                lo = chrrom.area[baseAddr.toInt()]
+                val patternTable = testBit(ppuReg.PPUCTRL.toInt(), 4).toInt()
+                baseAddr =
+                    (
+                        (patternTable shl 12)
+                            or ((nt.toInt()) shl 4)
+                            or ((ppuReg.v.toInt() and 0x7000) shr 12)
+                    ).toUShort()
+                lo = chrrom.read(baseAddr)
                 state = 5
             }
 
             5 -> state = 6
 
             6 -> {
-                hi = chrrom.area[(baseAddr + 8u).toInt()]
+                hi = chrrom.read((baseAddr + 8u).toUShort())
                 state = 7
             }
 
