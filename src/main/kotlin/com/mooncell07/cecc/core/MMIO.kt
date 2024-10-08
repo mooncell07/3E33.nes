@@ -12,7 +12,6 @@ class PPURegisters(
     var PPUSTATUS: UByte = 0x00u
     var OAMADDR: UByte = 0x00u
     var OAMDATA: UByte = 0x00u
-    var PPUSCROLL: UByte = 0x00u
     var PPUDATA: UByte = 0x00u
 
     // Internal Registers
@@ -44,6 +43,10 @@ class PPURegisters(
             0x0 -> PPUCTRL
             0x1 -> PPUMASK
             0x2 -> {
+                /*
+                $2002 (PPUSTATUS) read
+                w:                  <- 0
+                 */
                 PPUSTATUS = handleBit(PPUSTATUS.toInt(), 7, nmiOccured).toUByte()
                 nmiOccured = false
                 w = false
@@ -51,7 +54,6 @@ class PPURegisters(
             }
             0x3 -> OAMADDR
             0x4 -> OAMDATA
-            0x5 -> PPUSCROLL
             0x7 -> {
                 println("PPUDATA HAS BEEN READ IMPLEMENT IT")
                 PPUDATA
@@ -64,6 +66,12 @@ class PPURegisters(
         data: UByte,
     ) = when (address.toInt() and 0xF) {
         0x0 -> {
+            /*
+            $2000 (PPUCTRL) write
+            t: ... GH.. .... .... <- d: ......GH
+            <used elsewhere>      <- d: ABCDEF..
+             */
+            t = (t and 0xF3FFu) or ((data and 0x03u).toInt() shl 10).toUShort()
             PPUCTRL = data
             nmiOutput = testBit(PPUCTRL.toInt(), 7)
         }
@@ -71,17 +79,52 @@ class PPURegisters(
         0x2 -> PPUSTATUS = data
         0x3 -> OAMADDR = data
         0x4 -> OAMDATA = data
-        0x5 -> PPUSCROLL = data
+        0x5 -> {
+            /*
+            $2005 (PPUSCROLL) first write (w is 0)
+            t: ....... ...ABCDE <- d: ABCDE...
+            x:              FGH <- d: .....FGH
+            w:                  <- 1
+
+            $2005 (PPUSCROLL) second write (w is 1)
+            t: FGH..AB CDE..... <- d: ABCDEFGH
+            w:                  <- 0
+             */
+
+            if (!w) {
+                t = ((data and 0xF8u).toInt() shr 3).toUShort()
+                x = (data and 7u)
+                w = true
+            } else {
+                t = (((data and 7u).toInt() shl 12).toUShort() or ((data and 0xF8u).toInt() shl 2).toUShort() or t)
+                w = false
+            }
+        }
+
         0x6 -> {
-            if (w) {
+            /*
+            $2006 (PPUADDR) first write (w is 0)
+            t: .CDEFGH ........ <- d: ..CDEFGH
+            <unused>            <- d: AB......
+            t: Z...... ........ <- 0 (bit Z is cleared)
+            w:                  <- 1
+
+            $2006 (PPUADDR) second write (w is 1)
+            t: ....... ABCDEFGH <- d: ABCDEFGH
+            v: <...all bits...> <- t: <...all bits...>
+            w:                  <- 0
+             */
+
+            if (!w) {
+                t = (data and 0x3Fu).toUShort()
+                w = true
+            } else {
                 t = concat(t.toUByte(), data)
                 v = t
                 w = false
-            } else {
-                t = data.toUShort()
-                w = true
             }
         }
+
         0x7 -> {
             PPUDATA = data
             // implement attr table

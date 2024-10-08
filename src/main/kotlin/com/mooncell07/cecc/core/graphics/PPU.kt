@@ -40,7 +40,7 @@ class PPU(
                         }
                     }
                     if (fetcher.dots == 256) {
-                        regs.v = (regs.v and 0xFBE0u) or (regs.t and 0x041Fu)
+                        regs.v = (regs.v and 0x7BE0u) or (regs.t and 0x041Fu)
                     }
 
                     if ((fetcher.shiftRegister.size > 0) and (fetcher.dots < 256)) {
@@ -82,6 +82,9 @@ class PPU(
 
                 if (testBit(regs.PPUMASK.toInt(), 3)) {
                     fetcher.tick()
+                    if ((fetcher.dots >= 280) and (fetcher.dots <= 304)) {
+                        regs.v = (regs.v and 0x041Fu) or (regs.t and 0x7BE0u)
+                    }
                 }
             }
         }
