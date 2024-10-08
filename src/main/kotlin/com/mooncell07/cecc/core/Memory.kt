@@ -27,7 +27,7 @@ class CHRROM(
     override val type = DT.CHRROM
     override val size = 0x1FFF
     override val base = 0x0000
-    private val abs = 0x4010
+    private val abs = 0x8010
     override val area: UByteArray = cart.area.slice(abs..(abs + size)).toUByteArray()
 }
 
