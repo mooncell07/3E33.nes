@@ -37,3 +37,10 @@ class VRAM : Device() {
     override val base = 0x2000
     override val area: UByteArray = UByteArray(size + 1) { 0u }
 }
+
+class PaletteRAM : Device() {
+    override val type = DT.PALETTERAM
+    override val size = 0x0020
+    override val base = 0x3F00
+    override val area: UByteArray = UByteArray(size + 1) { 0u }
+}
