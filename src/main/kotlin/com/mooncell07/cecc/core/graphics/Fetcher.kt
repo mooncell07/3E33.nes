@@ -7,6 +7,7 @@ class Fetcher(
     private val ppuReg: PPURegisters,
     private val vram: VRAM,
     private val chrrom: CHRROM,
+    private val paletteRAM: PaletteRAM,
 ) {
     val NTBASE = ushortArrayOf(0x2000u, 0x2400u, 0x2800u, 0x2C00u)
     val COLORS = arrayOf(Color.BLACK, Color.DARKGRAY, Color.LIGHTGRAY, Color.WHITE)
@@ -16,6 +17,8 @@ class Fetcher(
     private var lo: UByte = 0x00u
     private var hi: UByte = 0x00u
     private var baseAddr: UShort = 0x0000u
+    private var attr: UByte = 0x00u
+
     var shiftRegister = mutableListOf<Color>()
     var scanline = 261
     var dots = 320
@@ -51,7 +54,9 @@ class Fetcher(
             2 -> state = 3
 
             3 -> {
-                // AT
+                val attrAddr =
+                    0x23C0 or (ppuReg.v and 0x0C00u).toInt() or ((ppuReg.v.toInt() shr 4) and 0x38) or ((ppuReg.v.toInt() shr 2) and 0x07)
+                attr = vram.read(attrAddr.toUShort())
                 state = 4
             }
 

@@ -7,12 +7,14 @@ class PPU(
     private val regs: PPURegisters,
     vram: VRAM,
     chrrom: CHRROM,
+    paletteRAM: PaletteRAM,
 ) {
     private var state: PPUState = PPUState.PRERENDER
-    val fetcher: Fetcher = Fetcher(regs, vram, chrrom)
+    val fetcher: Fetcher = Fetcher(regs, vram, chrrom, paletteRAM)
 
     fun tick() {
         fetcher.dots++
+
         if (fetcher.dots == 341) {
             fetcher.dots = 0
             fetcher.scanline++

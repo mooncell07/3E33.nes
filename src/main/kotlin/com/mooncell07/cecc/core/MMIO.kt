@@ -2,6 +2,7 @@ package com.mooncell07.cecc.core
 
 class PPURegisters(
     private val vram: VRAM,
+    private val paletteRAM: PaletteRAM,
 ) : AbstractDevice() {
     override val type = DT.PPUREGISTERS
     override val size = 0x0007
@@ -128,7 +129,9 @@ class PPURegisters(
         0x7 -> {
             PPUDATA = data
             // implement attr table
-            if (v < 0x3000u) {
+            if (v >= 0x3F00u) {
+                paletteRAM.write(v, data)
+            } else {
                 vram.write(v, data)
             }
 
