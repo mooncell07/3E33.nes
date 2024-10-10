@@ -24,29 +24,11 @@ class PPU(
             PPUState.RENDER -> {
                 if (testBit(regs.PPUMASK.toInt(), 3)) {
                     fetcher.tick()
-                    if (fetcher.dots == 255) {
-                        if (regs.v.toInt() and 0x7000 != 0x7000) {
-                            regs.v = (regs.v + 0x1000u).toUShort()
-                        } else {
-                            regs.v = regs.v and 0x8FFFu
-                            var y = (regs.v and 0x03E0u).toInt() shr 5
-                            when (y) {
-                                29 -> {
-                                    y = 0
-                                    regs.v = regs.v xor 0x0800u
-                                }
-                                31 -> y = 0
-                                else -> y++
-                            }
-                            regs.v = (regs.v and 0xFC1Fu) or (y shl 5).toUShort()
-                        }
-                    }
-                    if (fetcher.dots == 256) {
-                        regs.v = (regs.v and 0x7BE0u) or (regs.t and 0x041Fu)
-                    }
-
                     if ((fetcher.shiftRegister.size > 0) and (fetcher.dots < 256)) {
                         screen.drawPixel(fetcher.shiftRegister.removeFirst())
+                    }
+                    if (fetcher.dots >= 255) {
+                        fetcher.hblank()
                     }
                 }
 
