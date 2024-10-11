@@ -5,12 +5,12 @@ import com.mooncell07.cecc.core.*
 class PPU(
     private val screen: Screen,
     private val regs: PPURegisters,
+    private val paletteRAM: PaletteRAM,
     vram: VRAM,
     chrrom: CHRROM,
-    paletteRAM: PaletteRAM,
 ) {
+    val fetcher: Fetcher = Fetcher(regs, vram, chrrom)
     private var state: PPUState = PPUState.PRERENDER
-    val fetcher: Fetcher = Fetcher(regs, vram, chrrom, paletteRAM)
 
     fun tick() {
         fetcher.dots++
@@ -24,12 +24,17 @@ class PPU(
             PPUState.RENDER -> {
                 if (testBit(regs.PPUMASK.toInt(), 3)) {
                     fetcher.tick()
+
                     if ((fetcher.shiftRegister.size > 0) and (fetcher.dots < 256)) {
-                        screen.drawPixel(fetcher.shiftRegister.removeFirst())
+                        val entry = fetcher.shiftRegister.removeFirst()
+                        val paletteAddress = 0x3F00 or (entry.palette shl 2) or entry.pixel
+                        val colorIndex = paletteRAM.read(paletteAddress.toUShort())
+                        val colorValue = PALETTE[colorIndex.toInt()]
+                        val color = getColor(colorValue)
+                        screen.drawPixel(color)
                     }
-                    if (fetcher.dots >= 255) {
-                        fetcher.hblank()
-                    }
+
+                    if (fetcher.dots >= 255) fetcher.hblank()
                 }
 
                 if (fetcher.scanline == 240) {
