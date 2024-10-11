@@ -1,16 +1,17 @@
 package com.mooncell07.cecc.core.graphics
 
 import com.mooncell07.cecc.core.*
-import javafx.scene.paint.Color
+
+data class ShiftRegisterEntry(
+    val pixel: Int,
+    val palette: Int,
+)
 
 class Fetcher(
     private val regs: PPURegisters,
     private val vram: VRAM,
     private val chrrom: CHRROM,
-    private val paletteRAM: PaletteRAM,
 ) {
-    val COLORS = arrayOf(Color.BLACK, Color.DARKGRAY, Color.LIGHTGRAY, Color.WHITE)
-
     private var state = 0
     private var address: UShort = 0x0000u
     private var ntByte: UByte = 0x00u
@@ -18,21 +19,11 @@ class Fetcher(
     private var loPlane: UByte = 0x00u
     private var hiPlane: UByte = 0x00u
 
-    var shiftRegister = mutableListOf<Color>()
+    var shiftRegister = mutableListOf<ShiftRegisterEntry>()
+
     var scanline = 261
     var dots = 320
     var frame = 1
-
-    private fun genPixelRow(
-        loPlane: UByte,
-        hiPlane: UByte,
-    ): IntArray {
-        val pixelRow = IntArray(8) { 0 }
-        for ((i, x) in (7 downTo 0).withIndex()) {
-            pixelRow[i] = (testBit(hiPlane.toInt(), x).toInt() shl 1) or testBit(loPlane.toInt(), x).toInt()
-        }
-        return pixelRow
-    }
 
     fun tick() {
         if ((dots >= 256) and (dots <= 320)) {
@@ -65,7 +56,9 @@ class Fetcher(
             }
 
             3 -> {
-                atByte = vram.read(address)
+                val v = regs.v.toInt()
+                val shift = ((v ushr 4) and 0x04) or (v and 0x02)
+                atByte = ((vram.read(address).toInt() shr shift)).toUByte()
                 state = 4
             }
 
@@ -90,15 +83,27 @@ class Fetcher(
             }
 
             7 -> {
-                val pixelRow = genPixelRow(loPlane, hiPlane)
-                for (x in pixelRow) {
-                    shiftRegister.addLast(COLORS[x])
-                }
-
+                submitRow()
                 incHorizontal()
-
                 state = 0
             }
+        }
+    }
+
+    private fun submitRow() {
+        for (x in (7 downTo 0)) {
+            val pixel = (
+                (testBit(hiPlane.toInt(), x).toInt() shl 1)
+                    or testBit(loPlane.toInt(), x).toInt()
+            )
+
+            val palette = (
+                (testBit(atByte.toInt(), 1).toInt() shl 1)
+                    or (testBit(atByte.toInt(), 0).toInt())
+            )
+
+            val entry = ShiftRegisterEntry(pixel, palette)
+            shiftRegister.addLast(entry)
         }
     }
 
