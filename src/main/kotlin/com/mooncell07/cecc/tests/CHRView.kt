@@ -1,10 +1,10 @@
 package com.mooncell07.cecc.tests
 
-import com.mooncell07.cecc.core.CHRROM
-import com.mooncell07.cecc.core.Cartridge
-import com.mooncell07.cecc.core.graphics.Screen
-import com.mooncell07.cecc.core.testBit
-import com.mooncell07.cecc.core.toInt
+import com.mooncell07.cecc.src.CHRROM
+import com.mooncell07.cecc.src.Cartridge
+import com.mooncell07.cecc.src.PPU.NTSC
+import com.mooncell07.cecc.src.testBit
+import com.mooncell07.cecc.src.toInt
 import javafx.application.Application
 import javafx.scene.Group
 import javafx.scene.Scene
@@ -12,7 +12,7 @@ import javafx.scene.paint.Color
 import javafx.stage.Stage
 
 class CHRView : Application() {
-    private val screen = Screen(128, 128, 3.0)
+    private val ntsc = NTSC(128, 128, 3.0)
     private val cart = Cartridge("roms/nestest.nes")
     private val chrrom = CHRROM(cart)
 
@@ -51,16 +51,16 @@ class CHRView : Application() {
                         """.trimMargin().replace("\n", ""),
                     )
                     for (x in pixelRow) {
-                        screen.drawPixel(COLORS[x])
+                        ntsc.drawPixel(COLORS[x])
                     }
                 }
             }
         }
-        screen.render()
+        ntsc.render()
     }
 
     override fun start(primaryStage: Stage) {
-        val scene = Scene(Group(screen.canvas))
+        val scene = Scene(Group(ntsc.canvas))
         primaryStage.title = "3E33.nes"
         primaryStage.scene = scene
         primaryStage.show()
