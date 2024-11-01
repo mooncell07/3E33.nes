@@ -65,7 +65,7 @@ class PPURegisters(
     override fun write(
         address: UShort,
         data: UByte,
-    ) = when (address.toInt() and 0xF) {
+    ) = when ((address).toInt() and 0xF) {
         0x0 -> {
             /*
             $2000 (PPUCTRL) write
@@ -152,6 +152,6 @@ class APURegisters : Device() {
     override val type = DT.APUREGISTERS
     override val size = 0x0017
     override val base = 0x4000
-
-    override val area = UByteArray(size + 1) { 0u }
+    override val absl = size + 1
+    override val area = UByteArray(absl) { 0u }
 }

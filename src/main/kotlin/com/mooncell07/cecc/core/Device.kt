@@ -17,16 +17,15 @@ open class Device : AbstractDevice() {
     override val type = DT.EMPTY
     override val size = -1
     override val base = -1
+    open val absl = -1
     open val area: UByteArray = ubyteArrayOf()
 
     override fun write(
         address: UShort,
         data: UByte,
     ) {
-        area[(address - base.toUShort()).toInt()] = data
+        area[(address - base.toUShort()).toInt() % absl] = data
     }
 
-    override fun read(address: UShort): UByte = area[(address - base.toUShort()).toInt()]
-
-    fun dump(): List<UByte> = area.slice(base..(base + size))
+    override fun read(address: UShort): UByte = area[(address - base.toUShort()).toInt() % absl]
 }
