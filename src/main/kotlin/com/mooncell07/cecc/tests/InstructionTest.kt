@@ -2,9 +2,30 @@ package com.mooncell07.cecc.tests
 
 import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
-import com.mooncell07.cecc.core.*
+import com.mooncell07.cecc.src.AbstractDevice
+import com.mooncell07.cecc.src.Bus
+import com.mooncell07.cecc.src.CPU.RP2A03
+import com.mooncell07.cecc.src.CPU.buildInstructionTable
+import com.mooncell07.cecc.src.Clock
+import com.mooncell07.cecc.src.DT
+import com.mooncell07.cecc.src.RT
 import java.io.File
 import kotlin.system.exitProcess
+
+@Suppress("ktlint")
+val illegalOpcodes = arrayOf(
+    "02", "03", "04", "07", "0B", "0C", "0F", "12", "13", "14",
+    "17", "1A", "1B", "1C", "1F", "22", "23", "27", "2B", "2F",
+    "32", "33", "34", "37", "3A", "3B", "3C", "3F", "42", "43",
+    "44", "47", "4B", "4F", "52", "53", "54", "57", "5A", "5B",
+    "5C", "5F", "62", "63", "64", "67", "6B", "6F", "72", "73",
+    "74", "77", "7A", "7B", "7C", "7F", "80", "82", "83", "87",
+    "89", "8B", "8F", "92", "93", "97", "9B", "9C", "9E", "9F",
+    "A3", "A7", "AB", "AF", "B2", "B3", "B7", "BB", "BF", "C2",
+    "C3", "C7", "CB", "CF", "D2", "D3", "D4", "D7", "DA", "DB",
+    "DC", "DF", "E2", "E3", "E7", "EB", "EF", "F2", "F3", "F4",
+    "F7", "FA", "FB", "FC", "FF"
+)
 
 data class State(
     @SerializedName("pc") var PC: UShort,
@@ -76,11 +97,12 @@ open class BaseEmulator {
     private val clock = Clock()
     val debugDevice = DebugDevice()
     val bus = Bus(clock, debugDevice)
-    val cpu = CPU(bus)
+    val re6502 = RP2A03(bus)
 
     init {
         buildInstructionTable()
-        cpu.PC = 0xC000u
+        bus.debug = true
+        re6502.regs.PC = 0xC000u
     }
 }
 
@@ -97,12 +119,12 @@ class InstructionTest(
     }
 
     private fun setEmuState(test: Test) {
-        cpu.PC = test.initial.PC
-        cpu[RT.A] = test.initial.A
-        cpu[RT.X] = test.initial.X
-        cpu[RT.Y] = test.initial.Y
-        cpu[RT.SP] = test.initial.SP
-        cpu[RT.SR] = test.initial.SR
+        re6502.regs.PC = test.initial.PC
+        re6502.regs[RT.A] = test.initial.A
+        re6502.regs[RT.X] = test.initial.X
+        re6502.regs[RT.Y] = test.initial.Y
+        re6502.regs[RT.SP] = test.initial.SP
+        re6502.regs[RT.SR] = test.initial.SR
 
         for (ramState in test.initial.ram) {
             bus.write(ramState[0].toUShort(), ramState[1].toUByte())
@@ -111,12 +133,12 @@ class InstructionTest(
     }
 
     private fun parseState(test: Test) {
-        after.PC = cpu.PC
-        after.A = cpu[RT.A]
-        after.X = cpu[RT.X]
-        after.Y = cpu[RT.Y]
-        after.SP = cpu[RT.SP]
-        after.SR = cpu[RT.SR]
+        after.PC = re6502.regs.PC
+        after.A = re6502.regs[RT.A]
+        after.X = re6502.regs[RT.X]
+        after.Y = re6502.regs[RT.Y]
+        after.SP = re6502.regs[RT.SP]
+        after.SR = re6502.regs[RT.SR]
 
         after.ram = MutableList(test.final.ram.size) { listOf(2) }
         for ((i, ramState) in test.final.ram.withIndex()) {
@@ -183,122 +205,13 @@ class InstructionTest(
             debugDevice.stopLogging()
             setEmuState(test)
             debugDevice.startLogging()
-            cpu.tick()
+            re6502.tick()
             debugDevice.stopLogging()
             compare(i, test)
         }
         println("[$$opcode]: PASSED!")
     }
 }
-
-val illegalOpcodes =
-    arrayOf(
-        "02",
-        "03",
-        "04",
-        "07",
-        "0B",
-        "0C",
-        "0F",
-        "12",
-        "13",
-        "14",
-        "17",
-        "1A",
-        "1B",
-        "1C",
-        "1F",
-        "22",
-        "23",
-        "27",
-        "2B",
-        "2F",
-        "32",
-        "33",
-        "34",
-        "37",
-        "3A",
-        "3B",
-        "3C",
-        "3F",
-        "42",
-        "43",
-        "44",
-        "47",
-        "4B",
-        "4F",
-        "52",
-        "53",
-        "54",
-        "57",
-        "5A",
-        "5B",
-        "5C",
-        "5F",
-        "62",
-        "63",
-        "64",
-        "67",
-        "6B",
-        "6F",
-        "72",
-        "73",
-        "74",
-        "77",
-        "7A",
-        "7B",
-        "7C",
-        "7F",
-        "80",
-        "82",
-        "83",
-        "87",
-        "89",
-        "8B",
-        "8F",
-        "92",
-        "93",
-        "97",
-        "9B",
-        "9C",
-        "9E",
-        "9F",
-        "A3",
-        "A7",
-        "AB",
-        "AF",
-        "B2",
-        "B3",
-        "B7",
-        "BB",
-        "BF",
-        "C2",
-        "C3",
-        "C7",
-        "CB",
-        "CF",
-        "D2",
-        "D3",
-        "D4",
-        "D7",
-        "DA",
-        "DB",
-        "DC",
-        "DF",
-        "E2",
-        "E3",
-        "E7",
-        "EB",
-        "EF",
-        "F2",
-        "F3",
-        "F4",
-        "F7",
-        "FA",
-        "FB",
-        "FC",
-        "FF",
-    )
 
 fun step(t: File) {
     val opcode = t.name.removeSuffix(".json").uppercase()

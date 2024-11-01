@@ -1,4 +1,4 @@
-package com.mooncell07.cecc.core
+package com.mooncell07.cecc.src
 
 class Bus(
     private val clock: Clock,
@@ -7,6 +7,7 @@ class Bus(
     override val type = DT.BUS
     override val size = 0xFFFF
     override val base = 0x0000
+    var debug = false
 
     init {
         deviceMap.sortBy { it.base }
@@ -24,7 +25,7 @@ class Bus(
         address: UShort,
         data: UByte,
     ) {
-        if (address == 0x4014.toUShort()) {
+        if ((address == 0x4014.toUShort()) and !debug) {
             for (i in 0..514) {
                 clock.tick()
             }

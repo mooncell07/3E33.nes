@@ -1,4 +1,4 @@
-package com.mooncell07.cecc.core
+package com.mooncell07.cecc.src
 
 fun MSB(value: UShort): UByte = (value.toInt() shr 8).toUByte()
 

@@ -1,6 +1,6 @@
 @file:Suppress("ktlint")
 
-package com.mooncell07.cecc.core
+package com.mooncell07.cecc.src
 
 enum class RegType { NONE, A, X, Y, SP, SR }
 

@@ -1,9 +1,16 @@
-package com.mooncell07.cecc.core.graphics
+package com.mooncell07.cecc.src.PPU
 
-import com.mooncell07.cecc.core.*
+import com.mooncell07.cecc.src.CHRROM
+import com.mooncell07.cecc.src.PPURegisters
+import com.mooncell07.cecc.src.PPUState
+import com.mooncell07.cecc.src.PaletteRAM
+import com.mooncell07.cecc.src.VRAM
+import com.mooncell07.cecc.src.clearBit
+import com.mooncell07.cecc.src.setBit
+import com.mooncell07.cecc.src.testBit
 
-class PPU(
-    private val screen: Screen,
+class RP2C02(
+    private val NTSC: NTSC,
     private val regs: PPURegisters,
     private val paletteRAM: PaletteRAM,
     vram: VRAM,
@@ -31,7 +38,7 @@ class PPU(
                         val colorIndex = paletteRAM.read(paletteAddress.toUShort())
                         val colorValue = PALETTE[colorIndex.toInt()]
                         val color = getColor(colorValue)
-                        screen.drawPixel(color)
+                        NTSC.drawPixel(color)
                     }
 
                     if (fetcher.dots >= 255) fetcher.hblank()
@@ -44,7 +51,7 @@ class PPU(
             }
             PPUState.POSTRENDER -> {
                 if (fetcher.scanline == 241) {
-                    screen.render()
+                    NTSC.render()
                     state = PPUState.VBLANK
                 }
             }

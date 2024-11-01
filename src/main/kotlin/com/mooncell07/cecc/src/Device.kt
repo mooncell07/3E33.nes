@@ -1,4 +1,4 @@
-package com.mooncell07.cecc.core
+package com.mooncell07.cecc.src
 
 abstract class AbstractDevice {
     abstract val type: DeviceType

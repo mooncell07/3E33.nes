@@ -1,6 +1,10 @@
-package com.mooncell07.cecc.core.graphics
+package com.mooncell07.cecc.src.PPU
 
-import com.mooncell07.cecc.core.*
+import com.mooncell07.cecc.src.CHRROM
+import com.mooncell07.cecc.src.PPURegisters
+import com.mooncell07.cecc.src.VRAM
+import com.mooncell07.cecc.src.testBit
+import com.mooncell07.cecc.src.toInt
 
 data class ShiftRegisterEntry(
     val pixel: Int,

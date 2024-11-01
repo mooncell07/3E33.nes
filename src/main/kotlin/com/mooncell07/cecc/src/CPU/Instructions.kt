@@ -1,4 +1,9 @@
-package com.mooncell07.cecc.core
+package com.mooncell07.cecc.src.CPU
+
+import com.mooncell07.cecc.src.AM
+import com.mooncell07.cecc.src.FT
+import com.mooncell07.cecc.src.IT
+import com.mooncell07.cecc.src.RT
 
 data class INSTR(
     val insType: IT,

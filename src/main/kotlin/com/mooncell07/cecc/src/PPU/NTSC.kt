@@ -1,4 +1,4 @@
-package com.mooncell07.cecc.core.graphics
+package com.mooncell07.cecc.src.PPU
 
 import javafx.scene.canvas.Canvas
 import javafx.scene.canvas.GraphicsContext
@@ -6,7 +6,7 @@ import javafx.scene.image.PixelWriter
 import javafx.scene.image.WritableImage
 import javafx.scene.paint.Color
 
-class Screen(
+class NTSC(
     private val width: Int = 256,
     height: Int = 240,
     scale: Double = 2.0,
