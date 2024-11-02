@@ -8,6 +8,7 @@ import com.mooncell07.cecc.src.CPU.RP2A03
 import com.mooncell07.cecc.src.CPU.buildInstructionTable
 import com.mooncell07.cecc.src.Clock
 import com.mooncell07.cecc.src.DT
+import com.mooncell07.cecc.src.OAM
 import com.mooncell07.cecc.src.RT
 import java.io.File
 import kotlin.system.exitProcess
@@ -96,12 +97,11 @@ class DebugDevice : AbstractDevice() {
 open class BaseEmulator {
     private val clock = Clock()
     val debugDevice = DebugDevice()
-    val bus = Bus(clock, debugDevice)
+    val bus = Bus(clock, OAM(), debugDevice)
     val re6502 = RP2A03(bus)
 
     init {
         buildInstructionTable()
-        bus.debug = true
         re6502.regs.PC = 0xC000u
     }
 }

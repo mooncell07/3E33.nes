@@ -10,7 +10,7 @@ import com.mooncell07.cecc.src.setBit
 import com.mooncell07.cecc.src.testBit
 
 class RP2C02(
-    private val NTSC: NTSC,
+    private val ntsc: NTSC,
     private val regs: PPURegisters,
     private val paletteRAM: PaletteRAM,
     vram: VRAM,
@@ -38,7 +38,7 @@ class RP2C02(
                         val colorIndex = paletteRAM.read(paletteAddress.toUShort())
                         val colorValue = PALETTE[colorIndex.toInt()]
                         val color = getColor(colorValue)
-                        NTSC.drawPixel(color)
+                        ntsc.drawPixel(color)
                     }
 
                     if (fetcher.dots >= 255) fetcher.hblank()
@@ -51,7 +51,7 @@ class RP2C02(
             }
             PPUState.POSTRENDER -> {
                 if (fetcher.scanline == 241) {
-                    NTSC.render()
+                    ntsc.render()
                     state = PPUState.VBLANK
                 }
             }
