@@ -35,3 +35,11 @@ class PaletteRAM : Device() {
     override val absl = size + 1
     override val area: UByteArray = UByteArray(absl) { 0u }
 }
+
+class OAM : Device() {
+    override val type = DT.OAM
+    override val size = 0x00FF
+    override val base = 0x0000
+    override val absl = size + 1
+    override val area: UByteArray = UByteArray(absl) { 0u }
+}

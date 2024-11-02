@@ -148,10 +148,22 @@ class PPURegisters(
     }
 }
 
-class APURegisters : Device() {
+class APURegisters : AbstractDevice() {
     override val type = DT.APUREGISTERS
     override val size = 0x0017
     override val base = 0x4000
-    override val absl = size + 1
-    override val area = UByteArray(absl) { 0u }
+    var dma: DMA? = null
+
+    override fun read(address: UShort): UByte = 0xFFu
+
+    override fun write(
+        address: UShort,
+        data: UByte,
+    ) {
+        when (address.toInt() and 0xFF) {
+            0x14 -> {
+                dma?.run(data)
+            }
+        }
+    }
 }
