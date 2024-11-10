@@ -5,7 +5,7 @@ import com.mooncell07.cecc.src.RT
 import com.mooncell07.cecc.src.handleBit
 import com.mooncell07.cecc.src.testBit
 
-open class Register {
+object Register {
     var PC: UShort = 0x0000u
 
     // First value is unused.
@@ -37,3 +37,5 @@ open class Register {
 
     fun getFlagOrdinal(f: FT) = f.ordinal - 1
 }
+
+typealias regs = Register
