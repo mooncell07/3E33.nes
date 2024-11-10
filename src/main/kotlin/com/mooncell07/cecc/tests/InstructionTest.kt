@@ -5,7 +5,9 @@ import com.google.gson.annotations.SerializedName
 import com.mooncell07.cecc.src.AbstractDevice
 import com.mooncell07.cecc.src.Bus
 import com.mooncell07.cecc.src.CPU.RP2A03
+import com.mooncell07.cecc.src.CPU.Register
 import com.mooncell07.cecc.src.CPU.buildInstructionTable
+import com.mooncell07.cecc.src.CPU.regs
 import com.mooncell07.cecc.src.Clock
 import com.mooncell07.cecc.src.DT
 import com.mooncell07.cecc.src.OAM
@@ -102,7 +104,7 @@ open class BaseEmulator {
 
     init {
         buildInstructionTable()
-        re6502.regs.PC = 0xC000u
+        regs.PC = 0xC000u
     }
 }
 
@@ -119,12 +121,12 @@ class InstructionTest(
     }
 
     private fun setEmuState(test: Test) {
-        re6502.regs.PC = test.initial.PC
-        re6502.regs[RT.A] = test.initial.A
-        re6502.regs[RT.X] = test.initial.X
-        re6502.regs[RT.Y] = test.initial.Y
-        re6502.regs[RT.SP] = test.initial.SP
-        re6502.regs[RT.SR] = test.initial.SR
+        Register.PC = test.initial.PC
+        Register[RT.A] = test.initial.A
+        Register[RT.X] = test.initial.X
+        Register[RT.Y] = test.initial.Y
+        Register[RT.SP] = test.initial.SP
+        Register[RT.SR] = test.initial.SR
 
         for (ramState in test.initial.ram) {
             bus.write(ramState[0].toUShort(), ramState[1].toUByte())
@@ -133,12 +135,12 @@ class InstructionTest(
     }
 
     private fun parseState(test: Test) {
-        after.PC = re6502.regs.PC
-        after.A = re6502.regs[RT.A]
-        after.X = re6502.regs[RT.X]
-        after.Y = re6502.regs[RT.Y]
-        after.SP = re6502.regs[RT.SP]
-        after.SR = re6502.regs[RT.SR]
+        after.PC = Register.PC
+        after.A = Register[RT.A]
+        after.X = Register[RT.X]
+        after.Y = Register[RT.Y]
+        after.SP = Register[RT.SP]
+        after.SR = Register[RT.SR]
 
         after.ram = MutableList(test.final.ram.size) { listOf(2) }
         for ((i, ramState) in test.final.ram.withIndex()) {

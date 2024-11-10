@@ -148,13 +148,14 @@ class PPURegisters(
     }
 }
 
-class APURegisters : AbstractDevice() {
+class APURegisters : Device() {
     override val type = DT.APUREGISTERS
     override val size = 0x0017
     override val base = 0x4000
-    var dma: DMA? = null
+    override val absl = size + 1
+    override val area = UByteArray(absl) { 0u }
 
-    override fun read(address: UShort): UByte = 0xFFu
+    lateinit var dma: DMA
 
     override fun write(
         address: UShort,
@@ -162,8 +163,26 @@ class APURegisters : AbstractDevice() {
     ) {
         when (address.toInt() and 0xFF) {
             0x14 -> {
-                dma?.run(data)
+                dma.run(data)
             }
+        }
+    }
+
+    class DMA(
+        private val bus: Bus,
+        private val oam: OAM,
+    ) {
+        var currentByte: UByte = 0x00u
+        var currentIndex: UShort = 0x0000u
+
+        fun run(hi: UByte) {
+            for (lo in 0..255) {
+                currentIndex = concat(hi, lo.toUByte())
+                currentByte = bus.read(currentIndex)
+                oam.write(lo.toUShort(), currentByte)
+                bus.clock.tick()
+            }
+            bus.clock.tick()
         }
     }
 }
