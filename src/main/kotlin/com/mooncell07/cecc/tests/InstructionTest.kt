@@ -7,7 +7,6 @@ import com.mooncell07.cecc.src.Bus
 import com.mooncell07.cecc.src.CPU.RP2A03
 import com.mooncell07.cecc.src.CPU.Register
 import com.mooncell07.cecc.src.CPU.buildInstructionTable
-import com.mooncell07.cecc.src.CPU.regs
 import com.mooncell07.cecc.src.Clock
 import com.mooncell07.cecc.src.DT
 import com.mooncell07.cecc.src.OAM
@@ -104,7 +103,7 @@ open class BaseEmulator {
 
     init {
         buildInstructionTable()
-        regs.PC = 0xC000u
+        Register.PC = 0xC000u
     }
 }
 
