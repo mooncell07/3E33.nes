@@ -37,5 +37,3 @@ object Register {
 
     fun getFlagOrdinal(f: FT) = f.ordinal - 1
 }
-
-typealias regs = Register
